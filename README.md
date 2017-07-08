@@ -18,7 +18,7 @@ Just run:
     <b>For Linux:</b> ~$ ./moniprobe_linux
   </li>
   <li>
-    <b>For Mac:</b> ~$ ./moniprobe_macos
+    <b>For Mac:</b> ~$ ./moniprobe_mac
   </li>
 </ul>
   
