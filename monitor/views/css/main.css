@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+
+body{
+  padding-top: 20px;
+  font-family: 'Roboto', sans-serif;
+}
+
+th{
+  padding-top: 0;
+  padding-bottom: 5px;
+}
+
+.row{
+  margin-bottom: 0;
+}
+
+.gaugecpu-text{
+  padding-left: 21px;
+  padding-bottom: 10px;
+}
+
+.gaugeram-text{
+  padding-left: 17px;
+  padding-bottom: 10px;
+}
+
+.gaugedown-text{
+  padding-left: 14px;
+  padding-bottom: 10px;
+}
+
+.gaugeup-text{
+  padding-left: 26px;
+  padding-bottom: 10px;
+}
+
+.gauge-container{
+  display: table;
+}
+
+.gauge-container{
+  display: table-cell;
+  padding-left: 10px;
+}

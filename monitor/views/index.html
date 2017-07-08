@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Moniprobe Monitor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.99.0/css/materialize.min.css">
+    <link rel="stylesheet" href="css/main.css">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.0.5/d3.js"></script>
+    <script type="text/javascript" src="js/d3-components/gauge.js"></script>
+    <script type="text/javascript" src="js/bson.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.99.0/js/materialize.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <hr>
+      <div class="row host-header">
+        <div class="col s1 valign">
+          <img width="48px" height="48px" src="img/vm.png" alt=""/>
+        </div>
+        <div class="col s11">
+          <b>Host:</b><tag class="hostname">-</tag>
+        </div>
+      </div>
+      <hr>
+      <div class="row host-info">
+        <div class="col s12 m8">
+          <table class="bordered centered">
+            <thead>
+              <tr>
+                <th>CPU Model</th>
+                <th>OS</th>
+                <th>OS Release</th>
+                <th>Endianness</th>
+                <th>Arch</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="cpu-model">-</td>
+                <td class="os-type">-</td>
+                <td class="os-release">-</td>
+                <td class="endianness">-</td>
+                <td class="arch">-</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="col m3 offset-m1">
+          <div class="gauges-container">
+            <div class="gauge-container">
+              <svg id="gauge1"></svg>
+              <div class="gaugecpu-text">CPU</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <hr>
+      <div class="row ram-header">
+        <div class="col s1 valign">
+          <img width="52px" height="52px" src="img/ram.ico" alt=""/>
+        </div>
+        <div class="col s11">
+          <b>RAM</b>
+        </div>
+      </div>
+      <hr>
+      <div class="row ram-info">
+        <div class="col s12 m8">
+          <table class="bordered centered">
+            <thead>
+              <tr>
+                <th>Usage</th>
+                <th>Free</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="ram-usage">- GB</td>
+                <td class="ram-free">- GB</td>
+                <td class="ram-total">- GB</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="col m3 offset-m1">
+          <div class="gauges-container">
+            <div class="gauge-container">
+              <svg id="gauge2"></svg>
+              <div class="gaugeram-text">RAM</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <hr>
+      <div class="row interface-header">
+        <div class="col s1 valign">
+          <img width="57px" height="57px" src="img/interface.jpg" alt=""/>
+        </div>
+        <div class="col s11">
+          <b>Active Interface:</b><tag class="interface-name"> - </tag>
+        </div>
+      </div>
+      <hr>
+      <div class="row interface-info">
+        <div class="col s12 m9">
+          <table class="bordered centered">
+            <thead>
+              <tr>
+                <th>MAC</th>
+                <th>Type</th>
+                <th>Speed</th>
+                <th>Public IP</th>
+                <th>Private IP</th>
+                <th>Netmask</th>
+                <th>Gateway</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="interface-mac">-</td>
+                <td class="interface-type">-</td>
+                <td class="interface-speed">-</td>
+                <td class="interface-public-ip">-</td>
+                <td class="interface-private-ip">-</td>
+                <td class="interface-netmask">-</td>
+                <td class="interface-gateway">-</td>
+              </tr>
+              <tr>
+                <th>Down</th>
+                <td class="interface-speed-down">- Kbps</td>
+                <td></td>
+                <td></td>
+                <th>Up</th>
+                <td class="interface-speed-up">- Kbps</td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="col m1">
+          <div class="gauges-container">
+            <div class="gauge-container">
+              <svg id="gauge3"></svg>
+              <div class="gaugedown-text">DOWN</div>
+            </div>
+            <div class="gauge-container">
+              <svg id="gauge4"></svg>
+              <div class="gaugeup-text">UP</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script type="text/javascript">
+    var config = liquidFillGaugeDefaultSettings();
+    config.circleThickness = 0.2;
+    config.waveAnimateTime = 1000;
+
+    var gauge1 = loadLiquidFillGauge("gauge1", 0, config);
+    var gauge2 = loadLiquidFillGauge("gauge2", 0, config);
+    var gauge3 = loadLiquidFillGauge("gauge3", 0, config);
+    var gauge4 = loadLiquidFillGauge("gauge4", 0, config);
+
+     var webSocketCPU = new WebSocket('ws://localhost:9002/cpu');
+     webSocketCPU.onerror = function(err) {
+            console.log("web socket cpu error %s", err.data);
+         alert(err.data)
+     };
+
+     webSocketCPU.onopen = function(msg) {
+         console.log("web socket cpu connected");
+     };
+
+     webSocketCPU.onclose = function(msg) {
+         alert("Moniprobe CPU down!");
+         console.log("web socket cpu connection closed");
+     };
+
+     webSocketCPU.onmessage = function(msg) {
+       var obj = JSON.parse(msg.data);
+       $(".hostname").html(" " + obj.hostname);
+       $(".cpu-model").html(obj.cpu_model);
+       $(".os-type").html(obj.os_type);
+       $(".os-release").html(obj.os_release);
+       $(".endianness").html(obj.endianness);
+       $(".arch").html(obj.arch);
+
+       $(".ram-usage").html(obj.ram_usage_gb + " GB");
+       $(".ram-free").html(obj.ram_free_gb + " GB");
+       $(".ram-total").html((obj.ram_usage_gb + obj.ram_free_gb) + " GB");
+       gauge1.update(obj.cpu_usage_p);
+       gauge2.update(obj.ram_usage_p);
+     };
+
+     var webSocketInt = new WebSocket('ws://localhost:9003/interface');
+     webSocketInt.onerror = function(err) {
+            console.log("web socket interface error %s", err.data);
+         alert(err.data)
+     };
+
+     webSocketInt.onopen = function(msg) {
+         console.log("web socket interface connected");
+     };
+
+     webSocketInt.onclose = function(msg) {
+         alert("Moniprobe Interface down!");
+         console.log("web socket interface connection closed");
+     };
+
+     webSocketInt.onmessage = function(msg) {
+       var obj = JSON.parse(msg.data);
+       $(".interface-mac").html(obj.mac)
+       $(".interface-type").html(obj.type);
+       $(".interface-name").html(" " + obj.name);
+       $(".interface-speed").html(obj.int_speed_mbps + " Mbps");
+       $(".interface-public-ip").html(obj.public_ip);
+       $(".interface-private-ip").html(obj.private_ip);
+       $(".interface-netmask").html(obj.netmask);
+       $(".interface-gateway").html(obj.gateway);
+
+      $(".interface-speed-down").html(obj.speed_down_kbps + " Kbps");
+      $(".interface-speed-up").html(obj.speed_up_kbps + " Kbps");
+      gauge3.update(obj.speed_down_p);
+      gauge4.update(obj.speed_up_p);
+     };
+
+  </script>
+</html>

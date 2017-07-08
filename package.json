@@ -1,0 +1,19 @@
+{
+  "name": "moniprobe",
+  "version": "1.0.0",
+  "description": "An Http websocket service for vm/containers diagnostics",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Christian Angelone",
+  "license": "MIT",
+  "dependencies": {
+    "network": "^0.3.2",
+    "restify": "^5.0.0",
+    "through2": "^2.0.3",
+    "websocket": "^1.0.24",
+    "websocket-stream": "^5.0.0"
+  }
+}
